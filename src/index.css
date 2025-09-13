@@ -1,0 +1,164 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Parking System Design System - Professional Administrative Interface
+All colors MUST be HSL for proper theming support.
+*/
+
+@layer base {
+  :root {
+    /* Core Administrative Colors */
+    --background: 219 15% 97%;
+    --foreground: 215 25% 15%;
+
+    /* Card and Surface Colors */
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 15%;
+
+    /* Popover and Overlay Colors */
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 15%;
+
+    /* Primary - Deep Navy for Professional Look */
+    --primary: 215 35% 22%;
+    --primary-foreground: 210 100% 98%;
+
+    /* Secondary - Light Grey for Subtle Elements */
+    --secondary: 215 15% 92%;
+    --secondary-foreground: 215 25% 15%;
+
+    /* Muted - For Background Elements */
+    --muted: 215 15% 95%;
+    --muted-foreground: 215 15% 45%;
+
+    /* Accent - Emerald for Success States */
+    --accent: 142 76% 36%;
+    --accent-foreground: 210 100% 98%;
+
+    /* Status Colors */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Available - Emerald Green for Available Spaces */
+    --available: 142 76% 36%;
+    --available-foreground: 0 0% 100%;
+
+    /* Occupied - Orange for Occupied Spaces */
+    --occupied: 21 90% 48%;
+    --occupied-foreground: 0 0% 100%;
+
+    /* Reserved - Blue for Reserved Spaces */
+    --reserved: 217 91% 60%;
+    --reserved-foreground: 0 0% 100%;
+
+    /* Closed - Red for Closed Zones */
+    --closed: 0 84% 60%;
+    --closed-foreground: 0 0% 100%;
+
+    /* Special Rate - Purple for Special Pricing */
+    --special: 271 81% 56%;
+    --special-foreground: 0 0% 100%;
+
+    /* Interactive Elements */
+    --border: 215 15% 85%;
+    --input: 215 15% 90%;
+    --ring: 215 35% 22%;
+
+    /* Layout */
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* Dark Mode for Administrative Interface */
+    --background: 215 28% 8%;
+    --foreground: 210 100% 98%;
+
+    --card: 215 25% 12%;
+    --card-foreground: 210 100% 98%;
+
+    --popover: 215 25% 12%;
+    --popover-foreground: 210 100% 98%;
+
+    --primary: 210 100% 98%;
+    --primary-foreground: 215 35% 22%;
+
+    --secondary: 215 20% 18%;
+    --secondary-foreground: 210 100% 98%;
+
+    --muted: 215 20% 15%;
+    --muted-foreground: 215 15% 65%;
+
+    --accent: 142 76% 36%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Dark Mode Status Colors */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --available: 142 76% 36%;
+    --available-foreground: 0 0% 100%;
+
+    --occupied: 21 90% 48%;
+    --occupied-foreground: 0 0% 100%;
+
+    --reserved: 217 91% 60%;
+    --reserved-foreground: 0 0% 100%;
+
+    --closed: 0 84% 60%;
+    --closed-foreground: 0 0% 100%;
+
+    --special: 271 81% 56%;
+    --special-foreground: 0 0% 100%;
+
+    --border: 215 20% 20%;
+    --input: 215 20% 18%;
+    --ring: 210 100% 98%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
