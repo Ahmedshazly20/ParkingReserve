@@ -19,8 +19,6 @@ const Login: React.FC = () => {
   const { toast } = useToast()
   const loginMutation = useLogin()
 
-  const from = location.state?.from?.pathname || '/admin'
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -45,10 +43,26 @@ const Login: React.FC = () => {
 
       toast({
         title: "Welcome back!",
-        description: `Logged in as ${result.user.username}`,
+        description: `Logged in as ${result.user.name}`,
       })
 
-      navigate(from, { replace: true })
+      // Correct logic: Navigate based on the user's role
+      if (result.user.role === 'admin') {
+        const from = location.state?.from?.pathname || '/admin'
+        navigate(from, { replace: true })
+      } else if (result.user.role === 'employee') {
+        const from = location.state?.from?.pathname || '/gates'
+        navigate(from, { replace: true })
+      } else {
+        // Handle unexpected roles
+        dispatch(loginFailure())
+        toast({
+          title: "Login failed",
+          description: "User role is not recognized.",
+          variant: "destructive",
+        })
+      }
+
     } catch (error) {
       dispatch(loginFailure())
       toast({
@@ -111,8 +125,8 @@ const Login: React.FC = () => {
           
           <div className="mt-6 text-sm text-muted-foreground">
             <p className="font-medium mb-1">Demo Credentials:</p>
-            <p>Admin: admin / admin123</p>
-            <p>Employee: employee / emp123</p>
+            <p>Admin: admin / adminpass</p>
+            <p>Employee: emp1 / pass1</p>
           </div>
         </CardContent>
       </Card>

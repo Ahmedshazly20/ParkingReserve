@@ -1,92 +1,68 @@
-import React, { useState } from 'react'
-import { useSelector } from 'react-redux'
-import { Navigate } from 'react-router-dom'
-import { RootState } from '../../store'
-import { useCheckout, useTicket, useSubscription } from '../../services/api'
-import { Button } from '../../components/ui/button'
-import { Input } from '../../components/ui/input'
-import { Label } from '../../components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
-import { Badge } from '../../components/ui/badge'
-import { Separator } from '../../components/ui/separator'
-import { useToast } from '../../hooks/use-toast'
-import { MdQrCode, MdCarRental, MdReceiptLong } from 'react-icons/md'
+import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { Navigate } from 'react-router-dom';
+import { RootState } from '../../store';
+import { useTicket, useCheckout, useSubscription } from '../../services/api';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { Badge } from '../../components/ui/badge';
+import { Separator } from '../../components/ui/separator';
+import { useToast } from '../../hooks/use-toast';
+import { MdQrCode, MdCarRental, MdReceiptLong } from 'react-icons/md';
 
-const CheckpointScreen: React.FC = () => {
-  const [ticketId, setTicketId] = useState('')
-  const [scannedTicket, setScannedTicket] = useState<any>(null)
-  const [checkoutResult, setCheckoutResult] = useState<any>(null)
+const CheckpointScreen = () => {
+  const [ticketId, setTicketId] = useState('');
+  const [checkoutResult, setCheckoutResult] = useState(null);
   
-  const { user, token, isAuthenticated } = useSelector((state: RootState) => state.auth)
-  const { toast } = useToast()
+  const { user, token, isAuthenticated } = useSelector((state) => state.auth);
+  const { toast } = useToast();
 
-  const { data: ticketData } = useTicket(ticketId, token || undefined)
-  const { data: subscriptionData } = useSubscription(scannedTicket?.subscriptionId || '')
-  const checkoutMutation = useCheckout(token || '')
+  const { data: ticketData, isLoading: isTicketLoading, isError: isTicketError } = useTicket(ticketId, token || undefined);
+  const { data: subscriptionData } = useSubscription(ticketData?.subscriptionId, { enabled: !!ticketData?.subscriptionId });
+  const checkoutMutation = useCheckout(token || '');
 
   if (!isAuthenticated || user?.role !== 'employee') {
-    return <Navigate to="/login" replace />
-  }
-
-  const handleScanTicket = () => {
-    if (!ticketId.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter a ticket ID",
-        variant: "destructive",
-      })
-      return
-    }
-
-    if (ticketData) {
-      setScannedTicket(ticketData)
-    } else {
-      toast({
-        title: "Error",
-        description: "Ticket not found",
-        variant: "destructive",
-      })
-    }
+    return <Navigate to="/login" replace />;
   }
 
   const handleCheckout = async (forceConvertToVisitor = false) => {
-    if (!scannedTicket) {
+    if (!ticketData) {
       toast({
         title: "Error",
-        description: "Please scan a ticket first",
+        description: "Please enter a valid ticket ID",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
     try {
       const result = await checkoutMutation.mutateAsync({
-        ticketId: scannedTicket.id,
+        ticketId: ticketData.id,
         forceConvertToVisitor
-      })
+      });
       
-      setCheckoutResult(result)
-      setScannedTicket(null)
-      setTicketId('')
-
+      setCheckoutResult(result);
+      setTicketId('');
       toast({
         title: "Checkout successful",
         description: `Total amount: $${result.amount?.toFixed(2) || '0.00'}`,
-      })
+      });
     } catch (error) {
       toast({
         title: "Checkout failed",
         description: error instanceof Error ? error.message : "An error occurred",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
-  const formatDuration = (hours: number) => {
-    const wholeHours = Math.floor(hours)
-    const minutes = Math.round((hours - wholeHours) * 60)
-    return `${wholeHours}h ${minutes}m`
-  }
+  const formatDuration = (hours) => {
+    const wholeHours = Math.floor(hours);
+    const minutes = Math.round((hours - wholeHours) * 60);
+    return `${wholeHours}h ${minutes}m`;
+  };
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -96,7 +72,6 @@ const CheckpointScreen: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Ticket Scanner */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -115,45 +90,50 @@ const CheckpointScreen: React.FC = () => {
                   placeholder="Paste or type ticket ID"
                   className="font-mono"
                 />
-                <Button onClick={handleScanTicket}>
-                  Scan
-                </Button>
               </div>
             </div>
 
-            {scannedTicket && (
+            {isTicketLoading && ticketId.trim() && (
+              <div className="text-center text-sm text-muted-foreground">Loading ticket details...</div>
+            )}
+            
+            {isTicketError && ticketId.trim() && (
+              <div className="text-center text-sm text-destructive">Ticket not found.</div>
+            )}
+
+            {ticketData && (
               <div className="bg-muted p-4 rounded-lg space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="font-medium">Ticket Found</span>
                   <Badge variant="outline" className="capitalize">
-                    {scannedTicket.type}
+                    {ticketData.type}
                   </Badge>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <p className="text-muted-foreground">Gate</p>
-                    <p className="font-medium">{scannedTicket.gateId}</p>
+                    <p className="font-medium">{ticketData.gateId}</p>
                   </div>
                   <div>
                     <p className="text-muted-foreground">Zone</p>
-                    <p className="font-medium">{scannedTicket.zoneId}</p>
+                    <p className="font-medium">{ticketData.zoneId}</p>
                   </div>
                   <div>
                     <p className="text-muted-foreground">Check-in</p>
                     <p className="font-medium">
-                      {new Date(scannedTicket.checkinAt).toLocaleString()}
+                      {new Date(ticketData.checkinAt).toLocaleString()}
                     </p>
                   </div>
                   <div>
                     <p className="text-muted-foreground">Duration</p>
                     <p className="font-medium">
-                      {formatDuration((Date.now() - new Date(scannedTicket.checkinAt).getTime()) / (1000 * 60 * 60))}
+                      {formatDuration((Date.now() - new Date(ticketData.checkinAt).getTime()) / (1000 * 60 * 60))}
                     </p>
                   </div>
                 </div>
 
-                {scannedTicket.subscriptionId && subscriptionData && (
+                {ticketData.subscriptionId && subscriptionData && (
                   <div className="border-t pt-3">
                     <div className="flex items-center space-x-2 mb-2">
                       <MdCarRental className="h-4 w-4" />
@@ -162,7 +142,7 @@ const CheckpointScreen: React.FC = () => {
                     <div className="text-sm space-y-1">
                       <p>ID: {subscriptionData.id}</p>
                       <p>Category: {subscriptionData.category}</p>
-                      <p>Cars: {subscriptionData.cars.join(', ')}</p>
+                      <p>Cars: {subscriptionData.cars.map(car => car.plate).join(', ')}</p>
                       <p className="text-muted-foreground">
                         Please verify the vehicle plate matches one of the registered cars
                       </p>
@@ -179,7 +159,7 @@ const CheckpointScreen: React.FC = () => {
                     {checkoutMutation.isPending ? 'Processing...' : 'Process Checkout'}
                   </Button>
                   
-                  {scannedTicket.type === 'subscriber' && (
+                  {ticketData.type === 'subscriber' && (
                     <Button 
                       variant="outline"
                       onClick={() => handleCheckout(true)}
@@ -194,7 +174,6 @@ const CheckpointScreen: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Checkout Result */}
         {checkoutResult && (
           <Card>
             <CardHeader>
@@ -204,10 +183,10 @@ const CheckpointScreen: React.FC = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-        <div className="bg-success/10 text-success p-4 rounded-lg text-center">
-          <div className="text-2xl font-bold">${checkoutResult.amount?.toFixed(2) || '0.00'}</div>
-          <div className="text-sm">Total Amount</div>
-        </div>
+              <div className="bg-success/10 text-success p-4 rounded-lg text-center">
+                <div className="text-2xl font-bold">${checkoutResult.amount?.toFixed(2) || '0.00'}</div>
+                <div className="text-sm">Total Amount</div>
+              </div>
 
               <div className="space-y-2">
                 <div className="flex justify-between">
@@ -230,7 +209,7 @@ const CheckpointScreen: React.FC = () => {
                   <Separator />
                   <div className="space-y-2">
                     <h4 className="font-medium">Rate Breakdown</h4>
-                    {checkoutResult.breakdown.map((segment: any, index: number) => (
+                    {checkoutResult.breakdown.map((segment, index) => (
                       <div key={index} className="flex justify-between text-sm">
                         <span>
                           {formatDuration(segment.hours)} @ ${segment.rate}/hr ({segment.rateMode})
@@ -254,7 +233,7 @@ const CheckpointScreen: React.FC = () => {
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default CheckpointScreen
+export default CheckpointScreen;

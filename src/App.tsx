@@ -14,6 +14,7 @@ import ParkingState from './pages/admin/ParkingState';
 import Employees from './pages/admin/Employees';
 import ControlPanel from './pages/admin/ControlPanel';
 import NotFound from "./pages/NotFound";
+import GatesScreen from "./pages/gate/GatesScreen";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/" element={<Layout />}>
               <Route index element={<Login />} />
               <Route path="login" element={<Login />} />
+              <Route path="gates" element={<GatesScreen />} />
               <Route path="gate/:gateId" element={<GateScreen />} />
               <Route path="checkpoint" element={<CheckpointScreen />} />
               <Route path="admin" element={<AdminDashboard />} />
